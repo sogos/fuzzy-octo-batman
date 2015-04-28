@@ -9,7 +9,11 @@ var gulp = require('gulp'),
     concat = require('gulp-concat')
     uglify = require('gulp-uglify')
     jade = require('gulp-jade')
+    foreach = require('gulp-foreach')
+    rename = require('gulp-rename')
+    glob = require("glob")
     inject = require('gulp-inject');
+    var Q = require('q');
 
 var config = {
     sassPath: './app/resources/sass',
@@ -75,12 +79,11 @@ gulp.task('serve', function () {
 gulp.task('watch', ['serve'], function() {
   gulp.watch('./app/resources/js/*.js', ['js']);
     gulp.watch(config.sassPath + '/**/*.scss', ['css']);
-    gulp.watch('./content/*.md', ['inject-mdPath-in-jade']);
-    gulp.watch(config.jadeTemplatePath+'/*.jade', ['inject-mdPath-in-jade'])
+    gulp.watch('./content/*.md', ['create-index']);
+    gulp.watch(config.jadeTemplatePath+'/*.jade', ['create-index'])
 });
 
-// Inject markdown to jade && compile jade to html
-gulp.task('inject-mdPath-in-jade', function () {
+gulp.task('create_index', function () {
   var markdownInjectFile = gulp.src(config.markdownPath + '/*.md', { read: false });
 
   var markdownInjectOptions = {
@@ -92,9 +95,9 @@ gulp.task('inject-mdPath-in-jade', function () {
     }
   };
 
-  return gulp.src(config.jadeTemplatePath + '/base.jade')
+  return gulp.src(config.jadeTemplatePath + '/index.jade')
     .pipe(inject(markdownInjectFile, markdownInjectOptions))
-    .pipe(gulp.dest('./.tmp/base.jade'))
+    .pipe(gulp.dest('./.tmp/index.jade'))
     .pipe(notify({ message: 'Markdown injected in base.jade' }))
     .pipe(jade({
       pretty: true
@@ -104,4 +107,40 @@ gulp.task('inject-mdPath-in-jade', function () {
     .pipe(notify({ message: 'Jade to HTML task complete' }));
 });
 
-gulp.task('default', ['bower', 'icons', 'css', 'js', 'inject-mdPath-in-jade' ]);
+gulp.task('create_articles', function() {
+  var markdownInjectOptions = {
+    starttag: '//- inject:mdPath',
+    addPrefix: '../..',
+    addRootSlash: false,
+    transform: function (filepath, file, i, length) {
+      return 'include:markdown ' + filepath;
+    }
+  };
+  var promises = [];
+  glob.sync('./content/*.md').forEach(function(filePath) {
+    var defer = Q.defer();
+      var pipeline = gulp.src(config.jadeTemplatePath + '/articles.jade')
+        .pipe(inject(gulp.src(filePath), markdownInjectOptions))
+        .pipe(gulp.dest('./.tmp/articles.jade'))
+        .pipe(notify({ message: 'Markdown '+filePath+' injected in articles.jade' }))
+        .pipe(jade({
+          pretty: true
+        }))
+        .pipe(rename(function(path) {
+          path.basename = filePath.substring(0,filePath.length - 3);
+        }))
+        .pipe(gulp.dest('./public/'))
+        .pipe(connect.reload())
+        .pipe(notify({ message: 'Jade to HTML task complete' }));
+        pipeline.on('end', function() {
+          defer.resolve();
+        });
+        promises.push(defer.promise);
+    }
+  );
+
+  return Q.all(promises);
+});
+
+
+gulp.task('default', ['bower', 'icons', 'css', 'js', 'create_index', 'create_articles' ]);
