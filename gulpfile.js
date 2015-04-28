@@ -82,7 +82,7 @@ gulp.task('jade', ['markdown'], function() {  // ['markdown'] forces jade to wai
     return gulp.src(config.jadeTemplatePath+'/*.jade')
     .pipe(
       jade(
-        {pretty: true}
+        {pretty: false}
         ))
         .pipe(gulp.dest('./public/'))
         .pipe(livereload())
@@ -101,7 +101,7 @@ gulp.task('serve', function () {
 // Rerun the task when a file changes
 gulp.task('watch', ['serve'], function() {
     gulp.watch(config.sassPath + '/**/*.scss', ['css']);
-    gulp.watch('./content/*.md', ['markdown']);
+    gulp.watch('./content/*.md', ['jade']);
     gulp.watch(config.jadeTemplatePath+'/*.jade', ['jade'])
 });
 
