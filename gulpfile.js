@@ -8,11 +8,14 @@ var gulp = require('gulp'),
     connect = require('gulp-connect')
     concat = require('gulp-concat')
     uglify = require('gulp-uglify')
+    markdown = require('gulp-markdown')
+    jade = require('gulp-jade')
     livereload = require('gulp-livereload');
 
 var config = {
-    sassPath: './resources/sass',
-    bowerDir: './bower_components'
+    sassPath: './app/resources/sass',
+    bowerDir: './bower_components',
+    jadeTemplatePath: './app/templates'
 }
 
 gulp.task('bower', function() {
@@ -37,7 +40,7 @@ gulp.task('icons', function() {
 });
 
 gulp.task('css', function() {
-    return gulp.src(config.sassPath + '/style.scss')
+    return gulp.src(config.sassPath + '/*.scss')
         .pipe(sass({
             style: 'compressed',
             loadPath: [
@@ -65,6 +68,27 @@ gulp.task('js', function(){
     .pipe(gulp.dest('./public/js'));;
 });
 
+// Converts Markdown to HTML
+gulp.task('markdown', function () {
+    return gulp.src('./content/*.md')
+        .pipe(markdown())
+        .pipe(gulp.dest('./public/md/'))
+        .pipe(notify({ message: 'Markdown to HTML task complete' }));
+});
+
+
+// Converts Jade to HTML (jade is including markdown files)
+gulp.task('jade', ['markdown'], function() {  // ['markdown'] forces jade to wait
+    return gulp.src(config.jadeTemplatePath+'/*.jade')
+    .pipe(
+      jade(
+        {pretty: true}
+        ))
+        .pipe(gulp.dest('./public/'))
+        .pipe(livereload())
+        .pipe(notify({ message: 'Jade to HTML task complete' }));
+});
+
 gulp.task('serve', function () {
   connect.server({
     root: ['public'],
@@ -77,6 +101,8 @@ gulp.task('serve', function () {
 // Rerun the task when a file changes
 gulp.task('watch', ['serve'], function() {
     gulp.watch(config.sassPath + '/**/*.scss', ['css']);
+    gulp.watch('./content/*.md', ['markdown']);
+    gulp.watch(config.jadeTemplatePath+'/*.jade', ['jade'])
 });
 
-gulp.task('default', ['bower', 'icons', 'css', 'js']);
+gulp.task('default', ['bower', 'icons', 'css', 'js', 'markdown', 'jade']);
