@@ -8,27 +8,19 @@ var gulp = require('gulp'),
     connect = require('gulp-connect')
     concat = require('gulp-concat')
     uglify = require('gulp-uglify')
-    markdown = require('gulp-markdown')
     jade = require('gulp-jade')
-    livereload = require('gulp-livereload');
+    inject = require('gulp-inject');
 
 var config = {
     sassPath: './app/resources/sass',
     bowerDir: './bower_components',
-    jadeTemplatePath: './app/templates'
+    jadeTemplatePath: './app/templates',
+    markdownPath: './content'
 }
 
 gulp.task('bower', function() {
     return bower()
         .pipe(gulp.dest(config.bowerDir))
-});
-
-gulp.task('sass', function() {
-    return sass('source/')
-    .on('error', function (err) {
-      console.error('Error!', err.message);
-   })
-    .pipe(gulp.dest('result'));
 });
 
 gulp.task('icons', function() {
@@ -54,7 +46,8 @@ gulp.task('css', function() {
             })))
         .pipe(autoprefix('last 2 version'))
         .pipe(gulp.dest('./public/css'))
-        .pipe(livereload());
+        .pipe(notify({ message: 'CSS complete' }))
+        .pipe(connect.reload());
 });
 
 
@@ -69,43 +62,46 @@ gulp.task('js', function(){
     .pipe(gulp.dest('./public/js'));;
 });
 
-// Converts Markdown to HTML
-gulp.task('markdown', function () {
-    return gulp.src('./content/*.md')
-        .pipe(markdown())
-        .pipe(gulp.dest('./public/md/'))
-        .pipe(notify({ message: 'Markdown to HTML task complete' }));
-});
-
-
-// Converts Jade to HTML (jade is including markdown files)
-gulp.task('jade', ['markdown'], function() {  // ['markdown'] forces jade to wait
-    return gulp.src(config.jadeTemplatePath+'/*.jade')
-    .pipe(
-      jade(
-        {pretty: false}
-        ))
-        .pipe(gulp.dest('./public/'))
-        .pipe(livereload())
-        .pipe(notify({ message: 'Jade to HTML task complete' }));
-});
 
 gulp.task('serve', function () {
   connect.server({
-    root: ['public'],
+    root: ['./public'],
     port: 8000,
     livereload: true
   });
 });
 
-
 // Rerun the task when a file changes
 gulp.task('watch', ['serve'], function() {
   gulp.watch('./app/resources/js/*.js', ['js']);
     gulp.watch(config.sassPath + '/**/*.scss', ['css']);
-    gulp.watch('./content/*.md', ['jade']);
-    gulp.watch(config.jadeTemplatePath+'/*.jade', ['jade']);
-
+    gulp.watch('./content/*.md', ['inject-mdPath-in-jade']);
+    gulp.watch(config.jadeTemplatePath+'/*.jade', ['inject-mdPath-in-jade'])
 });
 
-gulp.task('default', ['bower', 'icons', 'css', 'js', 'markdown', 'jade']);
+// Inject markdown to jade && compile jade to html
+gulp.task('inject-mdPath-in-jade', function () {
+  var markdownInjectFile = gulp.src(config.markdownPath + '/*.md', { read: false });
+
+  var markdownInjectOptions = {
+    starttag: '//- inject:mdPath',
+    addPrefix: '../..',
+    addRootSlash: false,
+    transform: function (filepath, file, i, length) {
+      return 'include:markdown ' + filepath;
+    }
+  };
+
+  return gulp.src(config.jadeTemplatePath + '/base.jade')
+    .pipe(inject(markdownInjectFile, markdownInjectOptions))
+    .pipe(gulp.dest('./.tmp/base.jade'))
+    .pipe(notify({ message: 'Markdown injected in base.jade' }))
+    .pipe(jade({
+      pretty: true
+    }))
+    .pipe(gulp.dest('./public/'))
+    .pipe(connect.reload())
+    .pipe(notify({ message: 'Jade to HTML task complete' }));
+});
+
+gulp.task('default', ['bower', 'icons', 'css', 'js', 'inject-mdPath-in-jade' ]);
