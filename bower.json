@@ -1,0 +1,23 @@
+{
+  "name": "french-devops",
+  "version": "0.0.0",
+  "authors": [
+    "Thibault Cordier <thibault.cordier@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "http://french-devops.club/",
+  "dependencies": {
+   "bootstrap": "~3.1.1"
+ },
+ "dependencies": {
+  "fontawesome": "~4.2.0",
+  "bootstrap-sass-official": "~3.2.0"
+},
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

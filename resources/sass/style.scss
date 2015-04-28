@@ -1,0 +1,20 @@
+$body-bg: #689F38;
+
+$brand-grey: #689F38;
+$brand-green: #8BC34A;
+$brand-low-green: #DCEDC8;
+$brand-white: #EEE;
+$brand-fushia: #E040FB;
+$font-color: #DCEDC8;
+$sub-heading-font-color: $brand-low-green;
+$brand-primary: $brand-fushia;
+$brand-success: $brand-green;
+$brand-info: #212121;
+
+$fa-font-path: '/fonts';
+$icon-font-path: '/fonts';
+$text-color: $font-color;
+
+@import "bootstrap-sprockets";
+@import "bootstrap";
+@import "font-awesome";
