@@ -18,3 +18,8 @@ $text-color: $font-color;
 @import "bootstrap-sprockets";
 @import "bootstrap";
 @import "font-awesome";
+
+#container {
+    background-color: $brand-low-green;
+    color: $brand-grey;
+}

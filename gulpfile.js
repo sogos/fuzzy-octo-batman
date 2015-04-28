@@ -62,6 +62,7 @@ gulp.task('js', function(){
   return gulp.src([
     config.bowerDir+'/jquery/dist/jquery.js',
     config.bowerDir+'/bootstrap-saas-official/javascript/bootstrap.js',
+    'app/resources/js/*.js'
     ])
     .pipe(concat('frontend.min.js'))
     .pipe(uglify())
@@ -100,9 +101,11 @@ gulp.task('serve', function () {
 
 // Rerun the task when a file changes
 gulp.task('watch', ['serve'], function() {
+  gulp.watch('./app/resources/js/*.js', ['js']);
     gulp.watch(config.sassPath + '/**/*.scss', ['css']);
     gulp.watch('./content/*.md', ['jade']);
-    gulp.watch(config.jadeTemplatePath+'/*.jade', ['jade'])
+    gulp.watch(config.jadeTemplatePath+'/*.jade', ['jade']);
+
 });
 
 gulp.task('default', ['bower', 'icons', 'css', 'js', 'markdown', 'jade']);
