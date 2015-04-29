@@ -1,0 +1,10 @@
+doctype html
+html(lang="en")
+  head
+    title= pageTitle
+    link(rel="stylesheet", href="/css/frontend.min.css")
+  body
+    div(class="container", id="container")
+      //- inject:mdPath
+      //- endinject
+    script(src="/js/frontend.min.js", type="text/javascript")
