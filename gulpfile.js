@@ -75,13 +75,7 @@ gulp.task('serve', function () {
   });
 });
 
-// Rerun the task when a file changes
-gulp.task('watch', ['serve'], function() {
-  gulp.watch('./app/resources/js/*.js', ['js']);
-    gulp.watch(config.sassPath + '/**/*.scss', ['css']);
-    gulp.watch('./content/*.md', ['create-index']);
-    gulp.watch(config.jadeTemplatePath+'/*.jade', ['create-index'])
-});
+
 
 gulp.task('create_index', function () {
   var markdownInjectFile = gulp.src(config.markdownPath + '/*.md', { read: false });
@@ -120,7 +114,7 @@ gulp.task('create_articles', function() {
   glob.sync('./content/*.md').forEach(function(filePath) {
     var defer = Q.defer();
       var pipeline = gulp.src(config.jadeTemplatePath + '/articles.jade')
-        .pipe(inject(gulp.src(filePath), markdownInjectOptions))
+        .pipe(inject(gulp.src(filePath, { read: false }), markdownInjectOptions))
         .pipe(gulp.dest('./.tmp/articles.jade'))
         .pipe(notify({ message: 'Markdown '+filePath+' injected in articles.jade' }))
         .pipe(jade({
@@ -142,5 +136,13 @@ gulp.task('create_articles', function() {
   return Q.all(promises);
 });
 
+
+// Rerun the task when a file changes
+gulp.task('watch', ['serve'], function() {
+  gulp.watch('./app/resources/js/*.js', ['js']);
+    gulp.watch(config.sassPath + '/**/*.scss', ['css']);
+    gulp.watch('./content/*.md', ['create_articles']);
+    gulp.watch(config.jadeTemplatePath+'/*.jade', ['create_articles']);
+});
 
 gulp.task('default', ['bower', 'icons', 'css', 'js', 'create_index', 'create_articles' ]);

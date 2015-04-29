@@ -1,17 +1,3 @@
- #Hello
- #World
+# AWS SDK for JavaScript
 
-  First Header  | Second Header
-  ------------- | -------------
-  Content Cell  | Content Cell
-  Content Cell  | Content Cell
-_____
-
-
-http://www.google.fr
-=======
-Hello
-Hello
-Hello
-Hello
-Hello
+[![NPM](https://nodei.co/npm/aws-sdk.svg?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/aws-sdk/)
