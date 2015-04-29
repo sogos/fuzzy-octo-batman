@@ -12,6 +12,7 @@ var gulp = require('gulp'),
     foreach = require('gulp-foreach')
     rename = require('gulp-rename')
     glob = require("glob")
+    minifyHTML = require('gulp-minify-html')
     inject = require('gulp-inject');
     var Q = require('q');
 
@@ -19,7 +20,7 @@ var config = {
     sassPath: './app/resources/sass',
     bowerDir: './bower_components',
     jadeTemplatePath: './app/templates',
-    markdownPath: './content'
+    contentPath: './content'
 }
 
 gulp.task('bower', function() {
@@ -78,14 +79,19 @@ gulp.task('serve', function () {
 
 
 gulp.task('create_index', function () {
-  var markdownInjectFile = gulp.src(config.markdownPath + '/*.md', { read: false });
+  var markdownInjectFile = gulp.src(config.contentPath + '/*.jade', { read: false });
+
+  var opts = {
+  conditionals: true,
+  spare:true
+  };
 
   var markdownInjectOptions = {
     starttag: '//- inject:mdPath',
     addPrefix: '../..',
     addRootSlash: false,
     transform: function (filepath, file, i, length) {
-      return 'include:markdown ' + filepath;
+      return 'include ' + filepath;
     }
   };
 
@@ -96,36 +102,44 @@ gulp.task('create_index', function () {
     .pipe(jade({
       pretty: true
     }))
+    .pipe(minifyHTML(opts))
     .pipe(gulp.dest('./public/'))
     .pipe(connect.reload())
     .pipe(notify({ message: 'Jade to HTML task complete' }));
 });
 
 gulp.task('create_articles', function() {
+
+  var opts = {
+  conditionals: true,
+  spare:true
+  };
+
+
   var markdownInjectOptions = {
     starttag: '//- inject:mdPath',
     addPrefix: '../..',
     addRootSlash: false,
     transform: function (filepath, file, i, length) {
-      return 'include:markdown ' + filepath;
+      return 'include ' + filepath;
     }
   };
   var promises = [];
-  glob.sync('./content/*.md').forEach(function(filePath) {
+  glob.sync(config.contentPath + '/*.jade').forEach(function(filePath) {
     var defer = Q.defer();
       var pipeline = gulp.src(config.jadeTemplatePath + '/articles.jade')
         .pipe(inject(gulp.src(filePath, { read: false }), markdownInjectOptions))
         .pipe(gulp.dest('./.tmp/articles.jade'))
-        .pipe(notify({ message: 'Markdown '+filePath+' injected in articles.jade' }))
+        .pipe(notify({ message: 'Post '+filePath+' was generated' }))
         .pipe(jade({
           pretty: true
         }))
         .pipe(rename(function(path) {
-          path.basename = filePath.substring(0,filePath.length - 3);
+          path.basename = filePath.substring(0,filePath.length - 5);
         }))
+	.pipe(minifyHTML(opts))
         .pipe(gulp.dest('./public/'))
         .pipe(connect.reload())
-        .pipe(notify({ message: 'Jade to HTML task complete' }));
         pipeline.on('end', function() {
           defer.resolve();
         });
@@ -141,8 +155,8 @@ gulp.task('create_articles', function() {
 gulp.task('watch', ['serve'], function() {
   gulp.watch('./app/resources/js/*.js', ['js']);
     gulp.watch(config.sassPath + '/**/*.scss', ['css']);
-    gulp.watch('./content/*.md', ['create_articles']);
-    gulp.watch(config.jadeTemplatePath+'/*.jade', ['create_articles']);
+    gulp.watch(config.contentPath + '/*.jade', ['create_articles', 'create_index']);
+    gulp.watch(config.jadeTemplatePath+'/*.jade', ['create_articles', 'create_index']);
 });
 
 gulp.task('default', ['bower', 'icons', 'css', 'js', 'create_index', 'create_articles' ]);
