@@ -1,0 +1,17 @@
+div(class="post")
+  .row
+    span.label.label-default.pull-right
+      i.fa.fa-calendar-o
+      postDate= postDate
+  .row
+  //- inject:mdPath
+  //- endinject
+  .row
+    span.label.label-info
+      i.fa.fa-user-md
+      author= author
+    each tag in tags ? tags : ['There are no values']
+      span.tags.label.label-tags
+        i.fa.fa-tag
+        tag= tag
+    a.btn.btn-warning.pull-right(href="#{contentUrl}") Poursuivre la lecture

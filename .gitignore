@@ -3,3 +3,8 @@ node_modules/
 .sass-cache/
 bower_components/
 .tmp/
+content/*.jade
+images/*.jpg
+images/*.svg
+images/*.gif
+npm-debug.log

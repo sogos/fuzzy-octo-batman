@@ -7,19 +7,70 @@ $brand-white: #EEE;
 $brand-fushia: #E040FB;
 $font-color: #DCEDC8;
 $sub-heading-font-color: $brand-low-green;
-$brand-primary: $brand-fushia;
+$brand-dark-green: darken($brand-green, 20%);
+$brand-primary: $brand-dark-green;
 $brand-success: $brand-green;
-$brand-info: #212121;
+$brand-info: #323232;
+$brand-warning: darken(#f0ad4e, 15%);
 
 $fa-font-path: '/fonts';
 $icon-font-path: '/fonts';
 $text-color: $font-color;
 
+$navbar-default-bg: $brand_green;
+$navbar-default-border: $brand-green;
+$navbar-default-brand-color: #FFF;
+$navbar-default-link-color: #FFF;
+$navbar-default-link-hover-color: #EEE;
+$navbar-default-link-active-color: #FFF;
+$navbar-default-link-disabled-color: #DDD;
+
+
 @import "bootstrap-sprockets";
 @import "bootstrap";
 @import "font-awesome";
 
-#container {
+$font-family-sans-serif:  'Roboto', sans-serif;
+$font-family-base:        'Roboto', sans-serif;
+
+
+.mycontainer {
     background-color: $brand-low-green;
     color: $brand-grey;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+
+.post {
+  padding: 15px;
+  background-color: #EEE;
+  color: $brand-info;
+  font-family: 'Roboto', sans-serif;
+  margin-bottom: 3px;
+}
+
+.post .row {
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.post h1 {
+  color: $brand-info;
+  font-family: 'Roboto', sans-serif;
+}
+
+.tags {
+  margin-left: 10px;
+}
+
+.label-tags {
+  background-color: $brand-primary;
+}
+
+.green-site {
+  font-family: 'Roboto', sans-serif;
 }

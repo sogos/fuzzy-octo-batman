@@ -1,10 +1,20 @@
-doctype html
-html(lang="en")
-  head
-    title= pageTitle
-    link(rel="stylesheet", href="/css/frontend.min.css")
-  body
-    div(class="container", id="container")
-      //- inject:mdPath
-      //- endinject
-    script(src="/js/frontend.min.js", type="text/javascript")
+extends ./../../app/templates/base.jade
+block content
+  div(class="post")
+    .row
+      span.label.label-default.pull-right
+        i.fa.fa-calendar-o
+        postDate= postDate
+    .row
+    //- inject:mdPath
+    //- endinject
+    .row
+      span.label.label-info.pull-right
+        i.fa.fa-user-md
+        author= author
+      each tag in tags ? tags : ['There are no values']
+        span.tags.label.label-tags
+          i.fa.fa-tag
+          tag= tag
+    .row
+      div(id="disqus_thread")
