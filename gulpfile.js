@@ -35,10 +35,14 @@ var config = {
     siteName: 'Not-Enough'
 }
 
+function replaceAll(find, replace, str) {
+  return str.replace(new RegExp(find, 'g'), replace);
+}
+
 var myExtractor = function(filePath) {
   var baseName =  filePath.substring(10,filePath.length - 10);
   var baseNameSplit = baseName.split("_");
-  var title = config.siteName+" | "+baseNameSplit[1].replace("-", " ");
+  var title = config.siteName+" | "+ replaceAll('-', ' ', baseNameSplit[1]);
   var postDateRaw = baseNameSplit[0].split("-");
   var postDate = postDateRaw[0] + "/" + postDateRaw[1] +"/"+ postDateRaw[2] + " " + postDateRaw[3];
 
@@ -157,7 +161,7 @@ gulp.task('create_articles', function() {
         .pipe(rename(function(path) {
           path.basename = filePath.substring(0,filePath.length - 10);
         }))
-	      //.pipe(minifyHTML(opts))
+	      .pipe(minifyHTML(opts))
         .pipe(gulp.dest('./public/'))
         .pipe(connect.reload());
         pipeline.on('end', function() {
@@ -199,7 +203,7 @@ gulp.task('create_index', ['create_articles'], function () {
       return 'include ' + filepath;
     }
   };
-  var postsInjectFiles = gulp.src(glob.sync('./.tmp/posts/content' + '/*.html').reverse(), { read: false});
+  var postsInjectFiles = gulp.src(glob.sync('./.tmp/posts/content' + '/*.html'), { read: false});
   var jadeData = {
     title:  config.siteName
   };
